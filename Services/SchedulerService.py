@@ -1,4 +1,5 @@
 from pytz import timezone
+import time
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
@@ -16,4 +17,5 @@ class Scheduler:
         )
 
     def job1(self):
-        print("simple job is running...")
+        with open('./test.txt', mode='a') as f:
+            f.write(time.strftime('%c', time.localtime(time.time())) + "\n")
