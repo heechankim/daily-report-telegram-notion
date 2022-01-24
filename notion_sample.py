@@ -9,143 +9,48 @@ from notion_client import AsyncClient
 notion = AsyncClient(auth=ENV['NOTION_INTEGRATION_TOKEN'])
 
 
-
 from pprint import pprint
 
-async def new_page_in_database():
-    response = await notion.pages.create(
+
+PROPERTY_ID = {}
+async def get_property_id():
+    global PROPERTY_ID
+    response = await notion.databases.retrieve(
         **{
-            "parent": {
-                "type": "database_id",
-                "database_id": ENV['DR_ID'],
-            },
+            "database_id": ENV['DAILY_DATABASE'],
+        }
+    )
+
+    for key, value in response['properties'].items():
+        PROPERTY_ID[key] = value['id']
+
+
+
+async def update_property(date: str):
+    global PROPERTY_ID
+    response = await notion.pages.update(
+        **{
+            "page_id": await get_page_id_with_date(date),
             "properties": {
-                "Name": {
-                    "title": [{
-                        "text": {
-                            "content": 'test'
+                PROPERTY_ID['DOT2']: {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": "hello world!"
+                            }
                         }
-                    }]
-                },
-            },
-            "children": [
-                {
-                    "object": 'block',
-                    "type": 'heading_2',
-                    "heading_2": {
-                        "text": [
-                            {
-                                "type": 'text',
-                                "text": {
-                                    "content": 'Lacinato kale',
-                                },
-                            },
-                        ],
-                    },
-                },
-            ]
-        }
-    )
-    pprint("new page created \n")
-    pprint(response)
-    return response['id']
-
-async def get_page_retrieve():
-    response = await notion.pages.retrieve(
-        **{
-            "page_id": "e4398a85-55fa-44ef-9e08-951af8aa683d"
-        }
-    )
-    pprint(response)
-    return response
-
-async def get_page_contents():
-    response = await notion.blocks.children.list(
-        **{
-            "block_id": "0391b46b309e42de866b9efe026878f8",
-            "page_size": 100,
-        }
-    )
-    return response['results']
-
-
-async def get_dr_table():
-    page = await get_page_contents()
-
-    # 해당 페이지에서 table 블록의 id를 찾는다.
-    for item in page:
-        if item['type'] == "table":
-            _table = item
-
-    table = await notion.blocks.children.list(
-        **{
-            "block_id": _table['id']
-        }
-    )
-    table = table['results']
-
-    # 테이블에서 시간으로 검색하여 id 얻기
-    for item in table:
-        # pprint(item['table_row']['cells'][0][0]['plain_text'])
-        if item['table_row']['cells'][0][0]['plain_text'] == "24":
-            _row = item
-
-    inputText = "testtttt"
-    new_table_row = _row['table_row']
-    # new_table_row['cells'][1] = [{
-    #     'type': 'text',
-    #     'text': {'content': inputText,
-    #              'link': None},
-    #     'annotations': {'bold': False,
-    #                     'italic': False,
-    #                     'strikethrough': False,
-    #                     'underline': False,
-    #                     'code': False,
-    #                     'color': 'default'},
-    #     'plain_text': inputText,
-    #     'href': None
-    # }]
-    # new_table_row['cells'][1] = [{
-    #     'type': 'text',
-    #     'text': {
-    #         'content': inputText,
-    #     },
-    # }]
-    new_table_row = {
-        'cells': [[], [{
-            'type': 'text',
-            'text': {
-                'content': "testtttt"
+                    ]
+                }
             }
-        }], []]
-    }
-
-    # pprint(_row)
-    # pprint("======")
-    # pprint({
-    #         "block_id": _row['id'],
-    #         "table_row": new_table_row,
-    #     })
-
-
-    response = await notion.blocks.update(
-        **{
-            "block_id": _row['id'],
-            "table_row": new_table_row,
         }
     )
     pprint(response)
 
-
-async def get_database():
-    response = await notion.databases.retrieve(ENV['DR_ID'])
-    pprint(response)
-
-
-async def get_page_with_date_in_database(date: str):
+async def get_page_id_with_date(date: str):
     response = await notion.databases.query(
         **{
-            "database_id": ENV['DR_ID'],
+            "database_id": ENV['DAILY_DATABASE'],
             "filter": {
                 "property": "CREATED TIME",
                 "created_time": {
@@ -154,41 +59,31 @@ async def get_page_with_date_in_database(date: str):
             }
         }
     )
-    pprint(response)
+    # pprint(response)
+    return response['results'][0]['id']
 
-
-async def get_page():
-    response = await notion.pages.retrieve(
+async def find_properties(_id: str, _time: int):
+    global PROPERTY_ID
+    response = await notion.pages.properties.retrieve(
         **{
-            "page_id": await new_page_in_database()
+            "page_id": _id,
+            "property_id": PROPERTY_ID['DOT1']
         }
     )
 
-async def update_page():
-    response = await notion.pages.update(
-        **{
-            "page_id": "80bc9d6840a840d1b9a7d3d95adc68f8",
-            "children": [
-                {
-                    "object": 'block',
-                    "type": 'heading_2',
-                    "heading_2": {
-                        "text": [
-                            {
-                                "type": 'text',
-                                "text": {
-                                    "content": 'Lacinato kale',
-                                },
-                            },
-                        ],
-                    },
-                },
-            ]
-        }
-    )
-    pprint(response)
 
-# asyncio.run(get_page_with_date_in_database("2022-01-24"))
-# asyncio.run(new_page_in_database())
-asyncio.run(get_database())
+async def get_page(date: str):
+    _id = await get_page_id_with_date(date)
 
+    await find_properties(_id, 0)
+
+
+
+# asyncio.run(update_property("2022-01-24"))
+
+async def main():
+    await get_property_id()
+    # await get_page('2022-01-24')
+    await update_property('2022-01-24')
+
+asyncio.run(main())
