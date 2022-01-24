@@ -32,22 +32,16 @@ class App:
     def rp_command(self, update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=self.ENV['TELEGRAM_CHAN_ID'], text="command rp testing")
 
-    def callback_alarm(self, context: CallbackContext):
-        context.bot.send_message(chat_id=context.job.context, text='BEEP')
-
-    def callback_timer(self, update: Update, context: CallbackContext):
-        context.bot.send_message(chat_id=update.message.chat_id,
-                                 text='Setting a timer for 1 minute!')
-
-        context.job_queue.run_once(self.callback_alarm, 60, context=update.message.chat_id)
+    def callback_minute(self, context: CallbackContext):
+        context.bot.send_message(chat_id=self.ENV['TELEGRAM_CHAN_ID'],
+                                 text="One message every minute\n" + time.strftime('%c', time.localtime(time.time())))
 
     def start(self):
 
         self.rp_handler = CommandHandler('rp', self.rp_command)
         self.dispatcher.add_handler(self.rp_handler)
 
-        self.timer_handler = CommandHandler('timer', self.callback_timer)
-        self.dispatcher.add_handler(self.timer_handler)
+        job_minute = self.job_queue.run_repeating(self.callback_minute, interval=60, first=10)
 
         self.updater.start_polling()
         self.updater.idle()
