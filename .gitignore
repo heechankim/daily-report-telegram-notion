@@ -1,9 +1,6 @@
-
-.env
-
-test.txt
-
 __pycache__/
 
 *.session
 *.txt
+TODO.txt
+config.yml
