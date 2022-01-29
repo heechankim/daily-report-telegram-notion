@@ -1,17 +1,40 @@
-import time
 
-from dotenv import dotenv_values
-CHAN = dotenv_values(".env")
+"""utils module."""
+import yaml
 
-from telethon import TelegramClient, events, sync
 
-BOT = "chan_report_bot"
-client = TelegramClient('chan', CHAN['API_ID'], CHAN['API_HASH'])
+class DotDict(dict):
+    """dot.notation access to dictionary attributes"""
+    def __getattr__(*args):
+        _ = dict.get(*args)
+        return DotDict(_) if type(_) is dict else _
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
+def configuration() -> dict:
+    with open("config.yml", "r") as _config_yml:
+        config = yaml.load(_config_yml, Loader=yaml.FullLoader)
+        return DotDict(config)
+
+
+from telethon.sync import TelegramClient, events
+
+config = configuration()
+
+
+BOT = config.telegram.bot.name
+
+client = TelegramClient(
+    config.telegram.me.name,
+    config.telegram.me.api.id,
+    config.telegram.me.api.hash
+)
 
 
 @client.on(events.NewMessage(chats=BOT))
 async def get_message_from_bot(event):
-    if event.sender_id == int(CHAN['BOT_ID']):
+    if event.sender_id == int(config.telegram.bot.id):
         print("From bot : " + event.raw_text)
     else:
         print("From " + str(event.sender_id) + " : " + event.raw_text)

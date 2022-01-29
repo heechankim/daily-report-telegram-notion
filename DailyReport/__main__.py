@@ -1,25 +1,17 @@
 """Main module."""
 
-import yaml
-import logging, sys
-from pprint import pprint
-
-# application
-from .utils import configuration
-from .bot import ReportingBot
+import asyncio
 
 
-def main():
-    config = configuration()
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=config.log.level,
-        format=config.log.format,
-    )
+async def nested():
+    return 42
 
-    bot = ReportingBot(config)
-    bot.run()
+
+async def main():
+    nested()
+
+    print(await nested())
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

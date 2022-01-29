@@ -1,29 +1,20 @@
-import pytest
-
-from telethon import TelegramClient, events
-
-# application
-from DailyReport.utils import configuration
-from DailyReport.bot import ReportingBot
+import asyncio
+import logging
 
 
-@pytest.fixture
-def config():
-    return configuration()
+def test_can_bot_send_a_message(telegram_bot, chat, messages):
+    logger = logging.getLogger("test_can_bot_send_a_message")
+
+    asyncio.ensure_future(chat.listen())
+
+    telegram_bot.send_message("Hello World!")
+    logger.info("Send Hello World!")
+
+    telegram_bot.send_message("TEST_END")
+    logger.info("Send TEST_END")
 
 
-@pytest.fixture
-def client(config):
-    _client = TelegramClient(
-        config.telegram.me.name,
-        config.telegram.me.api.id,
-        config.telegram.me.api.hash
-    )
-    return _client
 
-
-def test_get_config(config):
-    assert config.telegram.me.name == "chan"
 
 
 # def test_get_message_from_bot(config, client):
@@ -41,8 +32,3 @@ def test_get_config(config):
 #     #     client.run_until_disconnected()
 
 
-def test_is_bot_running(config):
-    bot = ReportingBot(config)
-    bot.run()
-
-    assert bot.is_idle() == True
