@@ -1,18 +1,27 @@
-import asyncio
+import pytest
 import logging
+import sys
+logging.basicConfig(stream=sys.stdout,
+                    format="%(levelname)-8s [%(asctime)s] [%(threadName)s_%(thread)d] %(name)s: %(message)s"
+                    )
 
 
-def test_can_bot_send_a_message(telegram_bot, chat, messages):
-    logger = logging.getLogger("test_can_bot_send_a_message")
+logger = logging.getLogger(__name__)
 
-    asyncio.ensure_future(chat.listen())
 
-    telegram_bot.send_message("Hello World!")
-    logger.info("Send Hello World!")
+# @pytest.mark.asyncio
+# async def test_b(config, chat, messages):
+#     await chat.listen()
+#
+#     logger.info(messages.bot.get_nowait())
 
-    telegram_bot.send_message("TEST_END")
-    logger.info("Send TEST_END")
 
+def test_can_bot_send_a_message(telegram_bot, messages):
+    message = "this is a test message"
+
+    result = telegram_bot.send_message(message)
+
+    assert result == message
 
 
 

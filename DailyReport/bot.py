@@ -13,7 +13,10 @@ class ReportingBot:
         self.me_id = config.me.id
 
     def send_message(self, message: str):
-        self.bot.send_message(
-            self.me_id,
-            message
-        )
+        try:
+            self.bot.send_message(self.me_id, message)
+
+            return message
+
+        except Exception as e:
+            raise

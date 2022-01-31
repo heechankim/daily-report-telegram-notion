@@ -7,8 +7,8 @@ from telethon.sync import TelegramClient, events
 from DailyReport.utils import configuration
 from DailyReport.bot import ReportingBot
 
-from .telegram_mine import TelegramMine
-from .chat_queue import ChatQueue
+from .telegram_chat import TelegramChat
+from .messages import ChatQueue
 
 
 @pytest.fixture(scope="session")
@@ -21,9 +21,9 @@ def config():
     return configuration()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def chat(config, messages):
-    chat = TelegramMine(config)
+    chat = TelegramChat(config, messages)
 
     return chat
 
