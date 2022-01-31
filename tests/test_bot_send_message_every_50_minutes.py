@@ -24,8 +24,6 @@ def test_can_bot_send_a_message(telegram_bot, messages):
     assert result == message
 
 
-
-
 # def test_get_message_from_bot(config, client):
 #     bot = ReportingBot(config)
 #     bot.run()

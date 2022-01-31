@@ -1,38 +1,25 @@
+# module
+from DailyReport.utils import configuration
+
 from telethon.sync import TelegramClient, events
 
 import asyncio
 
 from pprint import pprint
+import sys
 import logging
+
 logger = logging.getLogger("TelegramChat")
-
-
-# application
-"""utils module."""
-import yaml
-
-
-class DotDict(dict):
-    """dot.notation access to dictionary attributes"""
-    def __getattr__(*args):
-        _ = dict.get(*args)
-        return DotDict(_) if type(_) is dict else _
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
-
-
-def configuration() -> dict:
-    with open("config.yml", "r") as _config_yml:
-        config = yaml.load(_config_yml, Loader=yaml.FullLoader)
-        return DotDict(config)
-
+logging.basicConfig(stream=sys.stdout,
+                    format="%(levelname)-8s [%(asctime)s] [%(threadName)s_%(thread)d] %(name)s: %(message)s"
+                    )
 
 
 class TelegramChat:
     def __init__(
             self,
             config: dict,
-            messages = None,
+            messages=None,
     ):
         logger.info("Telegram Chat init")
 
@@ -60,9 +47,7 @@ class TelegramChat:
     async def get_message_with_bot_chat(self, event):
         if event.sender_id == int(self.bot_id):
             logger.info("Receive from bot :" + event.raw_text)
-            self.message.bot.put(event.raw_text)
         else:
-            self.message.me.put(event.raw_text)
             logger.info("Receive from me :" + event.raw_text)
 
         if "/testend" in event.raw_text:
@@ -71,7 +56,6 @@ class TelegramChat:
 
 async def main():
     client = TelegramChat(config=configuration())
-    print(client.client.is_connected())
 
     await client.listen()
 
