@@ -39,8 +39,6 @@ class TelegramChat:
         )
 
     async def listen(self):
-        logger.info("Start listen ...")
-
         await self.client.connect()
         await self.client.run_until_disconnected()
 

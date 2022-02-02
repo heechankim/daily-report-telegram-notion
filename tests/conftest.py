@@ -8,12 +8,6 @@ from DailyReport.utils import configuration
 from DailyReport.bot import ReportingBot
 
 from .telegram_chat import TelegramChat
-from .messages import ChatQueue
-
-
-@pytest.fixture(scope="session")
-def messages():
-    return ChatQueue()
 
 
 @pytest.fixture(scope="session")
@@ -22,8 +16,8 @@ def config():
 
 
 @pytest.fixture
-def chat(config, messages):
-    chat = TelegramChat(config, messages)
+def chat(config):
+    chat = TelegramChat(config, None)
 
     return chat
 

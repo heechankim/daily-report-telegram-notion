@@ -16,12 +16,14 @@ logger = logging.getLogger(__name__)
 #     logger.info(messages.bot.get_nowait())
 
 
-def test_can_bot_send_a_message(telegram_bot, messages):
+def test_can_bot_send_a_message(telegram_bot):
     message = "this is a test message"
 
     result = telegram_bot.send_message(message)
 
     assert result == message
+
+
 
 
 # def test_get_message_from_bot(config, client):
