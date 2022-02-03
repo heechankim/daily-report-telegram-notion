@@ -12,10 +12,7 @@ class Messages:
     ):
         self.q = Queue()
 
-        self.__th = Thread(
-            target=self.consumer,
-            args=(callback,)
-        )
+        self.__th = Thread(target=self.consumer, args=(callback,))
         self.__th.start()
 
         self._stop = Event()
@@ -27,7 +24,7 @@ class Messages:
     def consumer(self, callback: Callable[[str], None]):
         while True:
             msg = self.q.get()
-            if self.stopped:
+            if msg is None:
                 break
             callback(msg)
             self.q.task_done()

@@ -1,0 +1,1 @@
+{"routines": {"1": {"job": {"name": "reporting what did"}, "repeat": {"each": "day", "every": "hour", "hour": 0, "minute": 50, "second": 0}}}, "todos": {"1": {"job": {"name": "sample todo"}, "once": {"year": 0, "month": 0, "day": 0, "hour": 0, "minute": 0, "second": 0}}}, "commands": {"1": {"command": "start", "text": "this is a start message!"}}}

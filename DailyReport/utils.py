@@ -1,5 +1,6 @@
 """utils module."""
 import yaml
+import datetime
 
 
 class DotDict(dict):
@@ -15,3 +16,13 @@ def configuration() -> dict:
     with open("/Users/chan/PycharmProjects/daily-report-telegram-notion/config.yml", "r") as _config_yml:
         config = yaml.load(_config_yml, Loader=yaml.FullLoader)
         return DotDict(config)
+
+
+def get_delayed_time_to_start():
+    now = datetime.datetime.now()
+    start = now.replace(minute=50, second=00)
+
+    if now.minute in range(50, 60):
+        start += datetime.timedelta(hours=1)
+
+    return start - now
