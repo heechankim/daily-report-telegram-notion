@@ -41,11 +41,12 @@ def callee(msg):
 
 class Messages:
     def __init__(
-            self
+            self,
+            bot_message_callback : Callable[[str], None],
     ):
         self.bot = Queue(maxsize=10)
         self.me = Queue(maxsize=10)
-        self.__thread = Thread(target=self.from_bot, args=(callee, ))
+        self.__thread = Thread(target=self.from_bot, args=(bot_message_callback, ))
         self.__thread.start()
 
     def bot_said(self, msg: str):

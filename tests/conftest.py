@@ -7,7 +7,7 @@ from telethon.sync import TelegramClient, events
 from DailyReport.utils import configuration
 from DailyReport.bot import ReportingBot
 
-from .telegram_chat import TelegramChat
+from .chat_receiver import TelegramChat
 
 
 @pytest.fixture(scope="session")
