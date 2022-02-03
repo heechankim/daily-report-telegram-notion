@@ -1,17 +1,15 @@
 """Main module."""
 
-import asyncio
+from DailyReport.bot import ReportingBot
+from DailyReport.utils import configuration
 
 
-async def nested():
-    return 42
+def main():
+    config = configuration()
+    bot = ReportingBot(config.telegram)
 
-
-async def main():
-    nested()
-
-    print(await nested())
+    bot.start()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

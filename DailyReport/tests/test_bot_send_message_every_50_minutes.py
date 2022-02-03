@@ -4,8 +4,6 @@ import sys
 logging.basicConfig(stream=sys.stdout,
                     format="%(levelname)-8s [%(asctime)s] [%(threadName)s_%(thread)d] %(name)s: %(message)s"
                     )
-
-
 logger = logging.getLogger(__name__)
 
 

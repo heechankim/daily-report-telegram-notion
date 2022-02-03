@@ -1,6 +1,6 @@
 # module
 from DailyReport.utils import configuration
-from chat_messages import Messages
+from DailyReport.tests.chat_messages import Messages
 
 
 from telethon.sync import TelegramClient, events
@@ -9,13 +9,14 @@ import asyncio
 import sys
 import logging
 import threading
+from pprint import pprint
 
 
 class Receiver:
     def __init__(
             self,
             config: dict,
-            messages: Messages = None,
+            messages,
     ):
         logging.basicConfig(stream=sys.stdout,
                             format="%(levelname)-8s [%(asctime)s] [%(threadName)s_%(thread)d] %(name)s: %(message)s"
@@ -47,30 +48,35 @@ class Receiver:
     async def get_message_with_bot_chat(self, event):
         if event.sender_id == int(self.bot_id):
             self.logger.info("Receive from bot :" + event.raw_text)
-            self.message.bot_said(event.raw_text)
+            self.message.received(event.raw_text)
 
         else:
             self.logger.info("Receive from me :" + event.raw_text)
-            self.message.bot_said(event.raw_text)
+            self.message.received(event.raw_text)
 
         if "/testend" in event.raw_text:
-            await self.client.disconnect()
+            await self.shutdown()
 
+    async def shutdown(self):
+        await self.client.disconnect()
+        self.message.stop()
 
 
 def get_message(msg: str):
-    print("        #####from_bot#####")
+    print("        #####new message#####")
     print("                " + msg)
-    print("        #####from_bot#####")
+    print("        #####new message#####")
+
 
 
 async def main():
-    msg = Messages(
-        bot_message_callback=get_message
-    )
+    config = configuration()
+    pprint(config)
     client = Receiver(
-        config=configuration(),
-        messages=msg,
+        config=config,
+        messages=Messages(
+            callback=get_message
+        ),
     )
 
     await client.listen()

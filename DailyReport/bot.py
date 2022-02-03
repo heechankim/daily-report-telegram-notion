@@ -23,7 +23,7 @@ class ReportingBot:
         self.id = config.bot.id
         self.me_id = config.me.id
 
-        self.updater = Updater(bot=self.bot)
+        self.updater = Updater(bot=self.bot, workers=1)
         self.dispatcher = self.updater.dispatcher
         self.job_queue = self.updater.job_queue
 
@@ -49,7 +49,6 @@ class ReportingBot:
         )
         self.updater.start_polling()
         self.updater.idle()
-
 
 
 if __name__ == "__main__":
