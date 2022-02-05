@@ -1,15 +1,18 @@
 """Main module."""
+from dependency_injector.wiring import Provide, inject
 
-from DailyReport.bot import ReportingBot
-from DailyReport.utils import configuration
+from .containers import Container
+from .bot import ReportingBot
 
 
-def main():
-    config = configuration()
-    bot = ReportingBot(config.telegram)
-
-    bot.start()
+@inject
+def main(bot: ReportingBot = Provide[Container.bot]) -> None:
+    bot.run()
 
 
 if __name__ == "__main__":
+    container = Container()
+    container.init_resources()
+    container.wire(modules=[__name__])
+
     main()

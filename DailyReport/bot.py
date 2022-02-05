@@ -1,59 +1,60 @@
-from DailyReport.utils import configuration
+from DailyReport.utils import configuration, get_delayed_time_to_start
 
 from telegram.bot import Bot
-from telegram import (
-Update,
-)
 from telegram.ext import (
-Updater,
-CallbackContext,
-CommandHandler
+    Updater,
+    CommandHandler
 )
 
-from pprint import pprint
+import datetime
 
 
 class ReportingBot:
 
     def __init__(
             self,
-            config: dict,
+            token,
+            bot_id,
+            my_id,
+            commands,
+            routines
     ):
-        self.bot = Bot(token=config.bot.token)
-        self.id = config.bot.id
-        self.me_id = config.me.id
+        self.bot = Bot(token=token)
+        self.id = bot_id
+        self.my_id = my_id
 
         self.updater = Updater(bot=self.bot, workers=1)
         self.dispatcher = self.updater.dispatcher
         self.job_queue = self.updater.job_queue
 
-    def send_message(self, message: str):
-        try:
-            self.bot.send_message(self.me_id, message)
+        self.__commands = [func for func in dir(commands) if
+                           callable(getattr(commands, func)) and not func.startswith("_")]
+        for command in self.__commands:
+            self.dispatcher.add_handler(
+                CommandHandler(command, getattr(commands, command))
+            )
 
-            return message
+        self.__routines = [func for func in dir(routines) if
+                           callable(getattr(routines, func)) and not func.startswith("_")]
 
-        except Exception as e:
-            raise
+        for routine in self.__routines:
+            self.job_queue.run_repeating(
+                getattr(routines, routine),
+                interval=datetime.timedelta(hours=1),
+                first=get_delayed_time_to_start()
+            )
 
-    def start_command(self, update: Update, context: CallbackContext):
-        context.bot.send_message(
-            chat_id=self.me_id,
-            text="testing start command",
-        )
+    def run(self):
+        self.start()
 
     def start(self):
-
-        self.dispatcher.add_handler(
-            CommandHandler("start", self.start_command)
-        )
         self.updater.start_polling()
         self.updater.idle()
 
 
 if __name__ == "__main__":
     config = configuration()
-    bot = ReportingBot(config.telegram)
+    bot = ReportingBot(config)
 
     bot.start()
 
