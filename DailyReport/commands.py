@@ -3,7 +3,21 @@ from telegram import Update
 
 from DailyReport.databases.notion_database import NotionDatabase
 
-from DailyReport.utils import remove_command_from_message
+from DailyReport.utils.utils import remove_command_from_message
+from DailyReport.utils.Either import Either, Left, Right
+
+
+def EitherHandler(either: Either, update: Update, context: CallbackContext):
+    if isinstance(either, Right):
+        context.bot.send_message(
+            chat_id=update.message.from_user.id,
+            text=either.context['result']
+        )
+    else:
+        context.bot.send_message(
+            chat_id=update.message.from_user.id,
+            text=either.context['message']
+        )
 
 
 class Commands:
@@ -18,27 +32,30 @@ class Commands:
     def start(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)
 
-        result = self.notion.new_user(self.chat_id, msg)
-        if result['failed']:
-            context.bot.send_message(
-                chat_id=self.chat_id,
-                text=result['result']
-            )
+        either = self.notion.new_user({
+            "telegram_id": update.message.from_user.id,
+            "root_page_id": msg
+        })
 
-        context.bot.send_message(
-            chat_id=self.chat_id,
-            text=result['result']
-        )
+        EitherHandler(either, update, context)
 
+    def setToken(self, update: Update, context: CallbackContext):
+        msg = remove_command_from_message(update.message.text)
+
+        either = self.notion.set_user_token({
+            "telegram_id": update.message.from_user.id,
+            "integration_token": msg
+        })
+
+        EitherHandler(either, update, context)
 
     def rp(self, update: Update, context: CallbackContext):
-        result = self.notion.report(update.message.from_user.id)
-        if result['failed']:
-            context.bot.send_message(
-                chat_id=self.chat_id,
-                text=result['result']
-            )
 
+        either = self.notion.report({
+            "telegram_id": update.message.from_user.id
+        })
+
+        EitherHandler(either, update, context)
 
     def todo(self, update: Update, context: CallbackContext):
         context.bot.send_message(

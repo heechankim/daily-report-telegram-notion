@@ -1,4 +1,4 @@
-from DailyReport.utils import get_delayed_time_to_start
+from DailyReport.utils.utils import get_delayed_time_to_start
 
 from telegram.bot import Bot
 from telegram.ext import (

@@ -13,7 +13,7 @@ class DotDict(dict):
 
 
 def configuration() -> dict:
-    with open("/Users/chan/PycharmProjects/daily-report-telegram-notion/config.yml", "r") as _config_yml:
+    with open("/config.yml", "r") as _config_yml:
         config = yaml.load(_config_yml, Loader=yaml.FullLoader)
         return DotDict(config)
 

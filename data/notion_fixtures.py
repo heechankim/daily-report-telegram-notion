@@ -1,8 +1,7 @@
 from notion_client import AsyncClient
-from DailyReport.utils import configuration
+from DailyReport.utils.utils import configuration
 
 import asyncio
-from pprint import pprint
 
 EMPTY_PAGE = "e7f3fde5ab364696aba5434dfa6eff5e"
 
