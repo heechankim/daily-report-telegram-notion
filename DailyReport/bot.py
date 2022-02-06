@@ -1,4 +1,4 @@
-from DailyReport.utils import configuration, get_delayed_time_to_start
+from DailyReport.utils import get_delayed_time_to_start
 
 from telegram.bot import Bot
 from telegram.ext import (
@@ -52,9 +52,9 @@ class ReportingBot:
         self.updater.idle()
 
 
-if __name__ == "__main__":
-    config = configuration()
-    bot = ReportingBot(config)
-
-    bot.start()
-
+# if __name__ == "__main__":
+#     config = configuration()
+#     bot = ReportingBot(config)
+#
+#     bot.start()
+#

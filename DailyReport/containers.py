@@ -6,6 +6,8 @@ from dependency_injector import containers, providers
 from .bot import ReportingBot
 from .commands import Commands
 from .routines import Routines
+from .databases.database import Database
+from .databases.notion_database import NotionDatabase
 
 
 class Container(containers.DeclarativeContainer):
@@ -19,9 +21,19 @@ class Container(containers.DeclarativeContainer):
         format=config.log.thread_format,
     )
 
+    db = providers.Singleton(
+        Database
+    )
+
+    notion_connection = providers.Singleton(
+        NotionDatabase,
+        db,
+    )
+
     commands = providers.Singleton(
         Commands,
         chat_id=config.telegram.my.id,
+        notion=notion_connection,
     )
 
     routines = providers.Singleton(
@@ -36,5 +48,4 @@ class Container(containers.DeclarativeContainer):
         my_id=config.telegram.my.id,
         commands=commands,
         routines=routines,
-
     )

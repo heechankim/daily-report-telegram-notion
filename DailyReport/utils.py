@@ -26,3 +26,9 @@ def get_delayed_time_to_start():
         start += datetime.timedelta(hours=1)
 
     return start - now
+
+def remove_command_from_message(msg: str):
+    result = ""
+    for m in msg.split(' ')[1:]:
+        result += m + " "
+    return result

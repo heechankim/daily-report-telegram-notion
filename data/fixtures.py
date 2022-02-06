@@ -1,4 +1,4 @@
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 import pathlib
 
 FILE = pathlib.Path(__file__)
@@ -6,10 +6,28 @@ DIR = FILE.parent
 DB = DIR / "db.json"
 
 
+def init_user(path):
+    with TinyDB(path) as db:
+        db.drop_table("users")
+        user = db.table("users")
+        user.insert({
+            "id": 2084891827,
+            "pages": {
+                "root": "e7f3fde5ab364696aba5434dfa6eff5e",
+                "daily": "",
+            }
+        })
 
-SAMPLE_DATA = [
-    ()
-]
+
+def search_user(path):
+    with TinyDB(path) as db:
+        users = db.table('users')
+        # result = users.search(where('id') == 2084891827)
+        result = users.get(where('id') == 2084891821)
+
+        if result is None:
+            print("데이터 없음")
+
 
 
 def create_tinydb(path):
@@ -54,7 +72,7 @@ def create_tinydb(path):
 
 
 def main():
-    create_tinydb(DB)
+    search_user(DB)
     print("OK")
 
 
