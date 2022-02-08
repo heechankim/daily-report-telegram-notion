@@ -2,7 +2,20 @@ import pytest
 import dataclasses
 import datetime
 
+from tinydb.storages import MemoryStorage
+from tinydb import TinyDB
 
+
+# tinyDB stub
+@pytest.fixture
+def db():
+    db_ = TinyDB(storage=MemoryStorage)
+    db_.drop_tables()
+    db_.insert_multiple({'int': 1, 'char': c} for c in 'abc')
+    return db_
+
+
+# python-telegram-bot.Update
 @dataclasses.dataclass
 class FromUserStub:
     id: int
@@ -20,6 +33,7 @@ class UpdateStub:
     message: MessageStub
 
 
+# python-telegram-bot.Context
 class Bot:
     @staticmethod
     def send_message(
@@ -40,6 +54,6 @@ class Context:
 
 @pytest.fixture
 def context():
-    return Context()
+    return Context(bot=Bot())
 
 

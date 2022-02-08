@@ -13,6 +13,8 @@ class NotionDatabase:
             self.db.is_user | \
             self.db.init_user
 
+        return result
+
     def set_user_root(self, context):
         result = Right(context) | \
             self.db.is_user
