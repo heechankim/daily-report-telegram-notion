@@ -15,59 +15,58 @@ class Database:
         self.path = DB
 
     def init_user(self, context):
-        either = self.is_user(context)
-
-        if isinstance(either, Right):
-            return Left({"message": "이미 생성된 계정 입니다."})
-        else:
+        with TinyDB(self.path) as db:
             telegram_id = context['telegram_id']
-            root_page_id = context['root_page_id']
-            with TinyDB(self.path) as db:
-                users = db.table("users")
-                result = users.insert({
-                    "id": telegram_id,
-                    "pages": {
-                        "root": root_page_id,
-                        "daily": "",
-                    },
-                    "integration": ""
-                })
-                return Right({"result": result})
+
+            users = db.table("users")
+            result = users.insert({
+                "id": telegram_id,
+                "pages": {
+                    "root": "",
+                    "daily": "",
+                },
+                "integration": ""
+            })
+
+            if result is not None:
+                return Right(dict(context, result="신규 유저 생성 완료"))
+            else:
+                return Left({"message": "error occurs in init_user"})
 
     def set_user_integration_token(self, context):
-        either = self.is_user(context)
-
-        if isinstance(either, Right):
+        with TinyDB(self.path) as db:
             telegram_id = context['telegram_id']
             integration_token = context['integration_token']
-            with TinyDB(self.path) as db:
-                users = db.table("users").get(where('id') == telegram_id)
-                result = users.update({
-                    "integration": integration_token
-                })
-                return Right({"result": result})
-        else:
-            return Left({"message": "생성되지 않은 유저."})
+
+            users = db.table("users").get(where('id') == telegram_id)
+            result = users.update({
+                "integration": integration_token
+            })
+
+            if result is not None:
+                return Right(dict(context, result="토큰 입력 성공."))
+            else:
+                return Left({"message": "error occurs in set_user_integration_token"})
 
     def is_user(self, context):
         with TinyDB(self.path) as db:
             telegram_id = context['telegram_id']
-            result = db.table("users").get(where('id') == telegram_id)
+
+            result = db.table("users").get(where('chat_id') == telegram_id)
 
             if result is not None:
-                return Right({"result": True})
+                return Right(dict(context, result=True))
             else:
-                return Left({"message": "\'/start page_id\' 로 페이지 추가 필요."})
+                return Right(dict(context, result=False))
 
     def get_user(self, context):
         with TinyDB(self.path) as db:
             telegram_id = context['telegram_id']
-            result = db.table("users").get(where('id') == telegram_id)
+
+            result = db.table("users").get(where('chat_id') == telegram_id)
 
             if result is not None:
-                return Right({
-                    "result": User(*result)
-                })
+                return Right(dict(context, result=User(**result)))
             else:
                 Left({"message": str(telegram_id) + "is not a user"})
 

@@ -34,7 +34,16 @@ class Commands:
 
         either = self.notion.new_user({
             "telegram_id": update.message.from_user.id,
-            "root_page_id": msg
+        })
+
+        EitherHandler(either, update, context)
+
+    def setRoot(self, update: Update, context: CallbackContext):
+        msg = remove_command_from_message(update.message.text)
+
+        either = self.notion.set_user_root({
+            "telegram_id": update.message.from_user.id,
+            "root": msg
         })
 
         EitherHandler(either, update, context)
@@ -50,9 +59,12 @@ class Commands:
         EitherHandler(either, update, context)
 
     def rp(self, update: Update, context: CallbackContext):
+        msg = remove_command_from_message(update.message.text)
 
         either = self.notion.report({
-            "telegram_id": update.message.from_user.id
+            "telegram_id": update.message.from_user.id,
+            "message": msg,
+            "datetime": update.message.date
         })
 
         EitherHandler(either, update, context)
@@ -65,4 +77,12 @@ class Commands:
 
         """
         {'update_id': 208513719, 'message': {'new_chat_members': [], 'supergroup_chat_created': False, 'channel_chat_created': False, 'photo': [], 'text': '/rp hello 123 ""aa 1 :: 12 : 😂', 'delete_chat_photo': False, 'caption_entities': [], 'entities': [{'type': 'bot_command', 'offset': 0, 'length': 3}], 'message_id': 634, 'new_chat_photo': [], 'date': 1644130630, 'chat': {'type': 'private', 'last_name': '김', 'first_name': '희찬', 'id': 2084891827, 'username': 'heechan_kim'}, 'group_chat_created': False, 'from': {'language_code': 'ko', 'last_name': '김', 'is_bot': False, 'first_name': '희찬', 'username': 'heechan_kim', 'id': 2084891827}}}
+        """
+
+        """
+        시나리오 :
+        /start
+        /setToken
+        /setRoot
+        /begin
         """

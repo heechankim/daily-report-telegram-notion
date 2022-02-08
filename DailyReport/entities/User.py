@@ -6,12 +6,12 @@ from tinydb import TinyDB, where
 class User:
     def __init__(
             self,
-            id: int,
+            chat_id: int,
             pages: dict,
             integration: str,
     ):
 
-        self.id = int(id)
+        self.chat_id = chat_id
         self.root = pages['root']
         self.daily = pages['daily']
-        self.integration = str(integration)
+        self.integration = integration
