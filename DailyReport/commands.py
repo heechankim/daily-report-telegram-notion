@@ -11,7 +11,7 @@ def EitherHandler(either: Either, update: Update, context: CallbackContext):
     if isinstance(either, Right):
         context.bot.send_message(
             chat_id=update.message.from_user.id,
-            text=either.context['result']
+            text=either.context['message']
         )
     else:
         context.bot.send_message(
@@ -28,8 +28,6 @@ class Commands:
         self.notion = notion
 
     def start(self, update: Update, context: CallbackContext):
-        msg = remove_command_from_message(update.message.text)
-
         either = self.notion.new_user({
             "telegram_id": update.message.from_user.id,
         })
@@ -39,22 +37,25 @@ class Commands:
     def setRoot(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)
 
-        either = self.notion.set_user_root({
+        either = self.notion.set_user_info({
             "telegram_id": update.message.from_user.id,
             "root": msg
         })
 
         EitherHandler(either, update, context)
 
-    def setToken(self, update: Update, context: CallbackContext):
+    def setNotion(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)
 
-        either = self.notion.set_user_token({
+        either = self.notion.set_user_info({
             "telegram_id": update.message.from_user.id,
-            "integration_token": msg
+            "integration": msg
         })
 
         EitherHandler(either, update, context)
+
+    def begin(self, update: Update, context: CallbackContext):
+        ...
 
     def rp(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)

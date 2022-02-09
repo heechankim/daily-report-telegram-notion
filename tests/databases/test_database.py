@@ -29,7 +29,6 @@ def test_init_user(database):
     })
 
     assert isinstance(result, Right)
-    assert result.context['result'] == 1
 
 
 def test_is_exist_user(database):
@@ -116,3 +115,21 @@ def test_update_user(database):
     })
 
     assert u.context['user'].pages['root'] is updated_root_page
+
+def test_update_user_context_integration(database):
+    telegram_id = 9999
+    notion_integration_token = "test_notion_token"
+    u = database.get_user({
+        "telegram_id": telegram_id
+    })
+
+    u.context['user'].integration = notion_integration_token
+    result = database.update_user(dict(
+        u.context,
+        integration=notion_integration_token
+    ))
+
+    u = database.get_user({
+        "telegram_id": telegram_id
+    })
+    assert u.context['user'].integration == notion_integration_token

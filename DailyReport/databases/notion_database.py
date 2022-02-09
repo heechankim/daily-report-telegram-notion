@@ -1,19 +1,19 @@
+import logging
+
 from DailyReport.databases.database import Database
 from DailyReport.utils.Either import Left, Right
-
-from notion_client import AsyncClient
 
 
 class NotionDatabase:
     def __init__(self, db: Database):
         self.db = db
+        self.log = logging.getLogger("[CLASS_notion_database]")
 
     def new_user(self, context):
-        c = self.db.is_user(context)
-        is_user = c.context['result']
+        exist_then_right = self.db.is_user(context)
 
-        if is_user is True:
-            return Left(dict(result=False))
+        if isinstance(exist_then_right, Right):
+            return exist_then_right
 
         result = self.db.init_user(context)
         return result

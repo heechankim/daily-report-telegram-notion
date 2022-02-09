@@ -21,39 +21,62 @@ def db():
     db_ = TinyDB(storage=MemoryStorage)
     # db_ = TinyDB(DB_URL)
     db_.drop_tables()
+
+    db_.table("users").insert({
+        "chat_id": 9999,
+        "pages": {
+            "root": "",
+            "daily": ""},
+        "integration": ""
+    })
+
     return db_
 
 
 # python-telegram-bot.Update
 @dataclasses.dataclass
-class FromUserStub:
+class FromUser:
     id: int
 
 
 @dataclasses.dataclass
-class MessageStub:
+class Message:
     text: str
     date: datetime.datetime
-    from_user: FromUserStub
+    from_user: FromUser
 
 
 @dataclasses.dataclass
-class UpdateStub:
-    message: MessageStub
+class Update:
+    message: Message
+
+
+@pytest.fixture
+def update():
+    return Update(
+        message=Message(
+            text="",
+            date=None,
+            from_user=FromUser(
+                id=0
+            )
+        )
+    )
 
 
 # python-telegram-bot.Context
 class Bot:
-    @staticmethod
+    def __init__(self):
+        self.chat_id: int
+        self.text: str
+
     def send_message(
             self,
             chat_id,
             text
     ):
-        return(dict(
-            chat_id=chat_id,
-            text=text
-        ))
+        self.chat_id = chat_id
+        self.text = text
 
 
 @dataclasses.dataclass

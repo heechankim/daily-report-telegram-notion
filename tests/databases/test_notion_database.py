@@ -34,7 +34,7 @@ def test_new_user(notion):
     })
 
     assert isinstance(result, Right)
-    assert result.context['result'] == 1
+
 
 
 def test_call_new_user_twice(notion):
@@ -42,12 +42,14 @@ def test_call_new_user_twice(notion):
         "telegram_id": 12
     })
 
+    assert isinstance(result, Right)
+
     result = notion.new_user({
         "telegram_id": 12
     })
 
-    assert isinstance(result, Left)
-    assert result.context['result'] is False
+    assert isinstance(result, Right)
+    assert result.context['message'] == "User is exist."
 
 
 def test_set_user_info(notion):
@@ -59,7 +61,7 @@ def test_set_user_info(notion):
         "telegram_id": telegram_id
     })
 
-    result = notion.set_user_root({
+    result = notion.set_user_info({
         "telegram_id": telegram_id,
         "root": updated_root_page
     })

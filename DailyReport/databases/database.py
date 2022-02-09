@@ -40,24 +40,9 @@ class Database:
         )
 
         if result is not None:
-            return Right(dict(context, result=result))
+            return Right(dict(context, result=result, message="Success init user info."))
         else:
-            return Left(dict(context, result=False))
-
-    def set_user_integration_token(self, context):
-        telegram_id = context['telegram_id']
-        integration_token = context['integration_token']
-
-        row = self.db.table("users").get(where('id') == telegram_id)
-
-        result = row.update({
-            "integration": integration_token
-        })
-
-        if result is not None:
-            return Right(dict(context, result="토큰 입력 성공."))
-        else:
-            return Left({"message": "error occurs in set_user_integration_token"})
+            return Left(dict(result=False, message="Failed, while creating user."))
 
     def is_user(self, context):
         telegram_id = context['telegram_id']
@@ -65,9 +50,9 @@ class Database:
         row = self.db.table("users").get(where('chat_id') == telegram_id)
 
         if row is not None:
-            return Right(dict(context, result=True))
+            return Right(dict(context, result=True, message="User is exist."))
         else:
-            return Left(dict(context, result=False))
+            return Left(dict(result=False, message="User is not exist."))
 
     def get_user(self, context):
         telegram_id = context['telegram_id']
@@ -75,25 +60,37 @@ class Database:
         row = self.db.table("users").get(where('chat_id') == telegram_id)
 
         if row is not None:
-            return Right(dict(context, user=User(**row)))
+            return Right(dict(context, user=User(**row),
+                              message="Success get user data."))
         else:
-            return Left(dict(context, result=None))
+            return Left(dict(result=None, message="User is not exist."))
 
     def update_user(self, context):
         telegram_id = context['telegram_id']
 
+        message = ""
+
         try:
             if context['root'] is not None:
-                _root = context['root']
-                context['user'].pages['root'] = _root
+                _root = str(context['root'])
+                context['user'].pages['root'] = _root.strip()
+                message += "Root Page "
+        except KeyError as k:
+            ...
 
+        try:
             if context['daily'] is not None:
-                _daily = context['daily']
-                context['user'].pages['daily'] = _daily
+                _daily = str(context['daily'])
+                context['user'].pages['daily'] = _daily.strip()
+                message += "Daily Page "
+        except KeyError as k:
+            ...
 
+        try:
             if context['integration'] is not None:
-                _integration = context['integration']
-                context['user'].integration = _integration
+                _integration = str(context['integration'])
+                context['user'].integration = _integration.strip()
+                message += "Notion Integration "
 
         except KeyError as k:
             ...
@@ -106,6 +103,9 @@ class Database:
         )
 
         if result is not None:
-            return Right(dict(context, result=result))
+            return Right(dict(context, result=result,
+                              message="Success update user {0}info.".format(
+                                  message
+                              )))
         else:
-            return Left(dict(context, result=False))
+            return Left(dict(result=False, message="Failed, while updating information."))
