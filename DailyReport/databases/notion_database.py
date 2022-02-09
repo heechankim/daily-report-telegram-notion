@@ -9,28 +9,27 @@ class NotionDatabase:
         self.db = db
 
     def new_user(self, context):
-        result = Right(context) | \
-            self.db.is_user | \
-            self.db.init_user
+        c = self.db.is_user(context)
+        is_user = c.context['result']
 
+        if is_user is True:
+            return Left(dict(result=False))
+
+        result = self.db.init_user(context)
         return result
 
-    def set_user_root(self, context):
-        result = Right(context) | \
-            self.db.is_user
-
-    def set_user_token(self, context):
+    def set_user_info(self, context):
         result = Right(context) | \
             self.db.is_user | \
-            self.db.set_user_integration_token
+            self.db.get_user | \
+            self.db.update_user
 
         return result
 
     def report(self, context):
         result = Right(context) | \
             self.db.is_user | \
-            self.db.get_user | \
-            self.report_insert
+            self.db.get_user
 
         return result
 

@@ -1,17 +1,26 @@
 import pytest
 import dataclasses
 import datetime
+import pathlib
+import logging
 
 from tinydb.storages import MemoryStorage
 from tinydb import TinyDB
+
+
+FILE = pathlib.Path(__file__)
+DIR = FILE.parent
+DB_URL = DIR / "db.json"
+
+log = logging.getLogger("[test_database]")
 
 
 # tinyDB stub
 @pytest.fixture
 def db():
     db_ = TinyDB(storage=MemoryStorage)
+    # db_ = TinyDB(DB_URL)
     db_.drop_tables()
-    db_.insert_multiple({'int': 1, 'char': c} for c in 'abc')
     return db_
 
 
