@@ -65,3 +65,4 @@ def test_set_notion_command(commands, database, update, context):
     assert user.integration == raw_msg
     log.info(vars(user))
 
+

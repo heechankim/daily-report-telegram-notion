@@ -32,7 +32,6 @@ class Container(containers.DeclarativeContainer):
 
     commands = providers.Singleton(
         Commands,
-        chat_id=config.telegram.my.id,
         notion=notion_connection,
     )
 

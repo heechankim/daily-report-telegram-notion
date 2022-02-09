@@ -26,6 +26,17 @@ class NotionDatabase:
 
         return result
 
+    def set_user_root_notion_page(self, context):
+        result = Right(context) | \
+            self.db.is_user | \
+            self.db.get_user
+
+        if isinstance(result, Left):
+            return result
+
+        user = result.context['user']
+
+
     def report(self, context):
         result = Right(context) | \
             self.db.is_user | \

@@ -1,9 +1,6 @@
 import asyncio
 import datetime
 
-from dotenv import dotenv_values
-ENV = dotenv_values(".env")
-
 from notion_client import AsyncClient
 
 notion = AsyncClient(auth=ENV['NOTION_INTEGRATION_TOKEN'])

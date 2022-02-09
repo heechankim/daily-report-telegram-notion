@@ -12,8 +12,8 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def configuration() -> dict:
-    with open("/config.yml", "r") as _config_yml:
+def configuration(path: str = "/config.yml") -> dict:
+    with open(path, "r") as _config_yml:
         config = yaml.load(_config_yml, Loader=yaml.FullLoader)
         return DotDict(config)
 
