@@ -1,13 +1,15 @@
 import logging
 
 from DailyReport.databases.database import Database
+from DailyReport.databases.notion_apis import NotionAPIs
 from DailyReport.utils.Either import Left, Right
 
 
 class NotionDatabase:
-    def __init__(self, db: Database):
+    def __init__(self, db: Database, api: NotionAPIs):
         self.db = db
         self.log = logging.getLogger("[CLASS_notion_database]")
+        self.api = api
 
     def new_user(self, context):
         exist_then_right = self.db.is_user(context)
@@ -35,7 +37,6 @@ class NotionDatabase:
             return result
 
         user = result.context['user']
-
 
     def report(self, context):
         result = Right(context) | \
