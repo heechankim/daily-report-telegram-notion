@@ -238,7 +238,7 @@ class NotionAPIs:
         return Response(result=True, response=response)
 
 
-async def main():
+# async def main():
     # notion = NotionAPIs(config.integration)
 
     # result_id = await notion.init_app_page(config.pages.root)
@@ -273,14 +273,3 @@ async def main():
     # pprint(result)
     #
     # await notion.close()
-
-    i = ""
-
-    if not i:
-        print("empty")
-    else:
-        print("false")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

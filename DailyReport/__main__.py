@@ -1,8 +1,7 @@
 """Main module."""
 from dependency_injector.wiring import Provide, inject
 
-from .containers import Container
-from .bot import ReportingBot
+from DailyReport import Container, ReportingBot
 
 
 @inject

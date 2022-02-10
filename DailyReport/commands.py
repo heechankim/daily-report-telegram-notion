@@ -1,7 +1,10 @@
+import logging
 import asyncio
 
-from telegram.ext import CallbackContext
+logging.basicConfig(filename="commands.log")
+
 from telegram import Update
+from telegram.ext import CallbackContext
 
 from DailyReport.databases.notion_database import NotionDatabase
 
@@ -28,6 +31,8 @@ class Commands:
             notion: NotionDatabase
     ):
         self.notion = notion
+        self.log = logging.getLogger("[Commands]")
+        self.log.setLevel(level=logging.DEBUG)
 
     def start(self, update: Update, context: CallbackContext):
         either = self.notion.new_user({
@@ -56,12 +61,16 @@ class Commands:
 
         EitherHandler(either, update, context)
 
-    def begin(self, update: Update, context: CallbackContext):
-        either = self.notion.init_user_root_notion_page({
+    async def begin(self, update: Update, context: CallbackContext):
+        self.log.info("1")
+        either = await self.notion.init_user_root_notion_page({
             "telegram_id": update.message.from_user.id
-        })
+        }, self.log)
+        self.log.info("5")
 
-        EitherHandler(either, update, context)
+        self.log.info(either)
+
+        # EitherHandler(either, update, context)
 
     def rp(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)

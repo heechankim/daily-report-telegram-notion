@@ -11,10 +11,8 @@ class NotionDatabase:
     def __init__(self, db: Database):
         self.db = db
         self.log = logging.getLogger("[CLASS_notion_database]")
-        # 사용자 별로 API 초기화 필요함.
-        self.api: NotionAPIs = None
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
+        # self.loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(self.loop)
 
     def new_user(self, context):
         exist_then_right = self.db.is_user(context)
@@ -33,11 +31,13 @@ class NotionDatabase:
 
         return result
 
-    def init_user_root_notion_page(self, context):
+    async def init_user_root_notion_page(self, context, log):
+        log.info("2")
         result = Right(context) | \
             self.db.is_user | \
             self.db.get_user
 
+        log.info("3")
         if isinstance(result, Left):
             return result
 
@@ -49,36 +49,42 @@ class NotionDatabase:
         if not user.integration:
             return Left(dict(result=False, message="Notion Integration Token isn't exist."))
 
-        if self.api is not None:
-            return Left(dict(result=False, message="Already Initialized"))
+        api = NotionAPIs(user.integration)
+        log.info("4")
 
-        self.api = NotionAPIs(user.integration)
+        user.pages['daily'] = await api.init_app_page(user.pages['root'])
 
-        async def perform(db: Database, api: NotionAPIs, user: User, log: logging.Logger):
-            daily_page_id = await api.init_app_page(user.pages['root'])
-            user.pages['daily'] = daily_page_id
-
-            log.info("[perform: d_p_i] " + str(daily_page_id))
-            log.info("[perform: User] " + str(vars(user)))
-
-            done(db, user, log)
-
-        def done(db: Database, user: User, log: logging.Logger):
-            if user.pages['daily']:
-                db.update_user({
-                    "telegram_id": user.chat_id,
-                    "user": user
-                })
-
-        task = self.loop.create_task(
-            perform(db=self.db, api=self.api, user=user, log=self.log)
-        )
-
-        self.loop.run_until_complete(task)
+        log.info(result.context)
 
         result.context['message'] = "App is now started"
 
         return result
+
+        # async def perform(db: Database, api: NotionAPIs, user: User, log: logging.Logger):
+        #     daily_page_id = await api.init_app_page(user.pages['root'])
+        #     user.pages['daily'] = daily_page_id
+        #
+        #     log.info("[perform: d_p_i] " + str(daily_page_id))
+        #     log.info("[perform: User] " + str(vars(user)))
+        #
+        #     done(db, user, log)
+        #
+        # def done(db: Database, user: User, log: logging.Logger):
+        #     if user.pages['daily']:
+        #         db.update_user({
+        #             "telegram_id": user.chat_id,
+        #             "user": user
+        #         })
+        #
+        # task = self.loop.create_task(
+        #     perform(db=self.db, api=api, user=user, log=self.log)
+        # )
+        #
+        # self.loop.run_until_complete(task)
+        #
+        # result.context['message'] = "App is now started"
+        #
+        # return result
 
     def report(self, context):
         result = Right(context) | \
@@ -98,20 +104,6 @@ class NotionDatabase:
 
         if self.api is None:
             return Left(dict(result=False, message="Need Initialized"))
-
-        async def perform():
-            ...
-
-        def done():
-            ...
-
-        task = self.loop.create_task(
-            perform()
-        )
-
-        self.loop.run_until_complete(task)
-
-        return result
 
     def report_insert(self, context):
         ...

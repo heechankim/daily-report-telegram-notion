@@ -1,0 +1,3 @@
+WARNING:telegram.ext.updater:Connection pool of Request object is smaller than optimal value (8)
+WARNING:telegram.ext.updater:Connection pool of Request object is smaller than optimal value (8)
+WARNING:telegram.vendor.ptb_urllib3.urllib3.connectionpool:Connection pool is full, discarding connection: api.telegram.org
