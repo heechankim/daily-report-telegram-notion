@@ -26,14 +26,9 @@ class Container(containers.DeclarativeContainer):
         Database
     )
 
-    api = providers.Singleton(
-        NotionAPIs
-    )
-
     notion_connection = providers.Singleton(
         NotionDatabase,
         db,
-        api,
     )
 
     commands = providers.Singleton(

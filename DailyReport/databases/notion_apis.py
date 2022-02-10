@@ -239,7 +239,7 @@ class NotionAPIs:
 
 
 async def main():
-    notion = NotionAPIs(config.integration)
+    # notion = NotionAPIs(config.integration)
 
     # result_id = await notion.init_app_page(config.pages.root)
 
@@ -256,23 +256,30 @@ async def main():
     #     "test !!!!"
     # )
 
-    await notion.init_daily_report_properties_id(
-        config.pages.daily
-    )
-    today = await notion.get_page_id_by_date_in_daily_report(
-        config.pages.daily,
-        datetime.date.today().isoformat()
-    )
+    # await notion.init_daily_report_properties_id(
+    #     config.pages.daily
+    # )
+    # today = await notion.get_page_id_by_date_in_daily_report(
+    #     config.pages.daily,
+    #     datetime.date.today().isoformat()
+    # )
+    #
+    # result = await notion.update_today_page_property(
+    #     config.pages.daily,
+    #     19,
+    #     "hello world!!!!!"
+    # )
+    #
+    # pprint(result)
+    #
+    # await notion.close()
 
-    result = await notion.update_today_page_property(
-        config.pages.daily,
-        19,
-        "hello world!!!!!"
-    )
+    i = ""
 
-    pprint(result)
-
-    await notion.close()
+    if not i:
+        print("empty")
+    else:
+        print("false")
 
 
 if __name__ == "__main__":

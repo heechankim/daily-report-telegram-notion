@@ -1,3 +1,5 @@
+import asyncio
+
 from telegram.ext import CallbackContext
 from telegram import Update
 
@@ -55,7 +57,11 @@ class Commands:
         EitherHandler(either, update, context)
 
     def begin(self, update: Update, context: CallbackContext):
-        ...
+        either = self.notion.init_user_root_notion_page({
+            "telegram_id": update.message.from_user.id
+        })
+
+        EitherHandler(either, update, context)
 
     def rp(self, update: Update, context: CallbackContext):
         msg = remove_command_from_message(update.message.text)
