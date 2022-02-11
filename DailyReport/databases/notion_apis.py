@@ -9,8 +9,9 @@ from notion_client import APIResponseError, APIErrorCode
 
 from DailyReport.entities import RichText
 from DailyReport.utils import configuration
-config = configuration("./config.yml").notion
 
+config = configuration("./config.yml").notion
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Response:
@@ -25,11 +26,16 @@ class NotionAPIs:
             self,
             token: str
     ):
-        self.notion = AsyncClient(auth=token)
-        self.log = logging.getLogger("[CLASS_APIS]")
-        self.daily_prop_ids = {}
+        self.token = token
+        self.notion: AsyncClient = None
+        self.report_prop_ids = {}
 
-    async def close(self):
+    async def __aenter__(self):
+        self.notion = AsyncClient(auth=self.token)
+
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.notion.aclose()
 
     def if_error_return_code(function):
@@ -48,29 +54,27 @@ class NotionAPIs:
     def generate_database_prop(self):
         p = dict()
 
-        hours = range(1, 25)
+        hours = range(24)
         for h in hours:
             p[str(h) + "oclock"] = {
                 "rich_text": []
             }
         p['Name'] = {"title": {}}
-        p['CREATED TIME'] = {"created_time": {}}
+        p['Date'] = {"date": {}}
 
         return p
 
-    async def init_app_page(self, root: str):
-        await self.update_app_page_title(root)
+    async def init_app(self, root: str):
+        await self.update_app_title(root)
 
-        res = await self.create_daily_report_page(root)
-
-        self.init_daily_report_properties_id(res.response['id'])
+        res = await self.create_report_page(root)
 
         return res.response['id']
 
         # return res.response
 
     @if_error_return_code
-    async def update_app_page_title(self, root):
+    async def update_app_title(self, root):
         response = await self.notion.pages.update(
             **{
                 "page_id": root,
@@ -97,7 +101,7 @@ class NotionAPIs:
         return Response(result=True, response=response)
 
     @if_error_return_code
-    async def create_daily_report_page(self, root):
+    async def create_report_page(self, root):
         response = await self.notion.databases.create(
             **{
                 "parent": {
@@ -119,7 +123,7 @@ class NotionAPIs:
         return Response(result=True, response=response)
 
     @if_error_return_code
-    async def init_daily_report_properties_id(self, daily):
+    async def get_report_prop_ids(self, daily):
         response = await self.notion.databases.retrieve(
             **{
                 "database_id": daily
@@ -127,16 +131,16 @@ class NotionAPIs:
         )
 
         for key, value in response['properties'].items():
-            self.daily_prop_ids[key] = value['id']
+            self.report_prop_ids[key] = value['id']
 
     @if_error_return_code
-    async def get_page_id_by_date_in_daily_report(self, daily, date):
+    async def get_page_id(self, daily, date):
         response = await self.notion.databases.query(
             **{
                 "database_id": daily,
                 "filter": {
-                    "property": "CREATED TIME",
-                    "created_time": {
+                    "property": "Date",
+                    "date": {
                         "equals": date
                     }
                 }
@@ -149,17 +153,19 @@ class NotionAPIs:
         return Response(result=True, response=response['results'][0]['id'])
 
     @if_error_return_code
-    async def is_today_page_exist(self, daily):
-        result = await self.get_page_id_by_date_in_daily_report(daily, datetime.date.today().isoformat())
+    async def is_today_exist(self, daily):
+        result = await self.get_page_id(daily, datetime.date.today().isoformat())
 
         return result
 
     @if_error_return_code
-    async def create_today_page_in_daily_report(self, daily):
-        result = await self.is_today_page_exist(daily)
+    async def create_today_report(self, daily):
+        result = await self.is_today_exist(daily)
 
         if result.result:
             return Response(result=False)
+
+        _date = datetime.date.today().isoformat()
 
         response = await self.notion.pages.create(
             **{
@@ -171,10 +177,15 @@ class NotionAPIs:
                         "title": [
                             {
                                 "text": {
-                                    "content": datetime.date.today().isoformat()
+                                    "content": _date
                                 }
                             }
                         ]
+                    },
+                    "Date": {
+                        "date": {
+                            "start": _date
+                        }
                     }
                 }
             }
@@ -183,14 +194,14 @@ class NotionAPIs:
         return Response(result=True, response=response)
 
     @if_error_return_code
-    async def retrieve_page_property(self, page: str, oclock: int):
+    async def get_report_prop(self, page: str, oclock: int):
 
         _oclock = str(oclock) + "oclock"
 
         response = await self.notion.pages.properties.retrieve(
             **{
                 "page_id": page,
-                "property_id": self.daily_prop_ids[_oclock]
+                "property_id": self.report_prop_ids[_oclock]
             }
         )
 
@@ -203,14 +214,16 @@ class NotionAPIs:
 
 
     @if_error_return_code
-    async def update_today_page_property(self, daily: str, oclock: int, text: str):
-        today_page = await self.get_page_id_by_date_in_daily_report(daily, datetime.date.today().isoformat())
+    async def update_report_prop(self, daily: str, oclock: int, text: str):
+        today_page = await self.get_page_id(daily, datetime.date.today().isoformat())
         today_page_id = today_page.response
+
+        await self.get_report_prop_ids(daily)
 
         _oclock = str(oclock) + "oclock"
         _text = ""
 
-        p = await self.retrieve_page_property(today_page_id, oclock)
+        p = await self.get_report_prop(today_page_id, oclock)
         if p.result:
             _text += p.response.rich_text.text.content
             _text += " / "

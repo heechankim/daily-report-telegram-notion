@@ -1,29 +1,20 @@
 import logging
 import asyncio
 
-logging.basicConfig(filename="commands.log")
+from aiogram import types
 
-from telegram import Update
-from telegram.ext import CallbackContext
+from DailyReport.databases import NotionDatabase
+from DailyReport.utils import Either, Left, Right
+from DailyReport.utils import remove_command_from_message
 
-from DailyReport.databases.notion_database import NotionDatabase
-
-from DailyReport.utils.utils import remove_command_from_message
-from DailyReport.utils.Either import Either, Left, Right
+logger = logging.getLogger(__name__)
 
 
-def EitherHandler(either: Either, update: Update, context: CallbackContext):
+async def EitherHandler(either: Either, message: types.Message):
     if isinstance(either, Right):
-        context.bot.send_message(
-            chat_id=update.message.from_user.id,
-            text=either.context['message']
-        )
+        await message.answer(either.context['message'])
     else:
-        context.bot.send_message(
-            chat_id=update.message.from_user.id,
-            text=either.context['message']
-        )
-
+        await message.answer(either.context['message'])
 
 class Commands:
     def __init__(
@@ -31,57 +22,51 @@ class Commands:
             notion: NotionDatabase
     ):
         self.notion = notion
-        self.log = logging.getLogger("[Commands]")
-        self.log.setLevel(level=logging.DEBUG)
 
-    def start(self, update: Update, context: CallbackContext):
+    async def start(self, message: types.Message):
         either = self.notion.new_user({
-            "telegram_id": update.message.from_user.id,
+            "telegram_id": message.chat.id,
         })
 
-        EitherHandler(either, update, context)
+        await EitherHandler(either, message)
 
-    def setRoot(self, update: Update, context: CallbackContext):
-        msg = remove_command_from_message(update.message.text)
+    async def setRoot(self, message: types.Message):
+        msg = remove_command_from_message(message.text)
 
         either = self.notion.set_user_info({
-            "telegram_id": update.message.from_user.id,
+            "telegram_id": message.chat.id,
             "root": msg
         })
 
-        EitherHandler(either, update, context)
+        await EitherHandler(either, message)
 
-    def setNotion(self, update: Update, context: CallbackContext):
-        msg = remove_command_from_message(update.message.text)
+    async def setNotion(self, message: types.Message):
+        msg = remove_command_from_message(message.text)
 
         either = self.notion.set_user_info({
-            "telegram_id": update.message.from_user.id,
+            "telegram_id": message.chat.id,
             "integration": msg
         })
 
-        EitherHandler(either, update, context)
+        await EitherHandler(either, message)
 
-    async def begin(self, update: Update, context: CallbackContext):
-        self.log.info("1")
+    async def begin(self, message: types.Message):
         either = await self.notion.init_user_root_notion_page({
-            "telegram_id": update.message.from_user.id
-        }, self.log)
-        self.log.info("5")
-
-        self.log.info(either)
-
-        # EitherHandler(either, update, context)
-
-    def rp(self, update: Update, context: CallbackContext):
-        msg = remove_command_from_message(update.message.text)
-
-        either = self.notion.report({
-            "telegram_id": update.message.from_user.id,
-            "message": msg,
-            "datetime": update.message.date
+            "telegram_id": message.chat.id
         })
 
-        EitherHandler(either, update, context)
+        await EitherHandler(either, message)
+
+    async def rp(self, message: types.Message):
+        msg = remove_command_from_message(message.text)
+
+        either = await self.notion.report({
+            "telegram_id": message.chat.id,
+            "message": msg,
+            "datetime": message.date
+        })
+
+        await EitherHandler(either, message)
 
     # def todo(self, update: Update, context: CallbackContext):
     #     context.bot.send_message(

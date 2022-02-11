@@ -43,8 +43,6 @@ class Container(containers.DeclarativeContainer):
     bot = providers.Singleton(
         ReportingBot,
         token=config.telegram.bot.token,
-        bot_id=config.telegram.bot.id,
-        my_id=config.telegram.my.id,
         commands=commands,
         routines=routines,
     )
