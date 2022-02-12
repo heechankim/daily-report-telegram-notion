@@ -77,7 +77,7 @@ class NotionDatabase:
             # TODO: 스케줄러로 생성하기.
             res = await api.create_today_report(user.pages['daily'])
             date = datetime.date.today().isoformat()
-            hour = context['datetime'].now().astimezone().hour
+            hour = context['datetime'].now().astimezone().now().hour
 
             res = await api.is_today_exist(user.pages['daily'])
 
