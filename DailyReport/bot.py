@@ -2,7 +2,6 @@ import logging
 import asyncio
 
 from aiogram import Bot, Dispatcher, executor
-from telegram.ext.jobqueue import JobQueue, Job
 
 
 logger = logging.getLogger(__name__)
