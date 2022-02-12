@@ -7,3 +7,6 @@ services:
     image: daily-report-daemon
     volumes:
       - "./:/code"
+
+    environment:
+      TZ: "Asia/Seoul"
