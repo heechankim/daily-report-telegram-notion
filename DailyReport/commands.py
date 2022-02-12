@@ -16,6 +16,7 @@ async def EitherHandler(either: Either, message: types.Message):
     else:
         await message.answer(either.context['message'])
 
+
 class Commands:
     def __init__(
             self,

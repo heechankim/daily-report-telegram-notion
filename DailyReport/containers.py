@@ -5,9 +5,8 @@ from dependency_injector import containers, providers
 
 from .bot import ReportingBot
 from .commands import Commands
-from .routines import Routines
-from .databases.database import Database
-from .databases.notion_database import NotionDatabase
+from .job_queue import JobQueue
+from .databases import NotionDatabase, Database
 
 
 class Container(containers.DeclarativeContainer):
@@ -35,13 +34,13 @@ class Container(containers.DeclarativeContainer):
         notion=notion_connection,
     )
 
-    routines = providers.Singleton(
-        Routines,
+    JobQueue = providers.Singleton(
+        JobQueue,
     )
 
     bot = providers.Singleton(
         ReportingBot,
         token=config.telegram.bot.token,
         commands=commands,
-        routines=routines,
+        jobqueue=JobQueue,
     )

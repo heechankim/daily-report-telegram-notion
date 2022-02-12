@@ -8,9 +8,9 @@ from notion_client import AsyncClient
 from notion_client import APIResponseError, APIErrorCode
 
 from DailyReport.entities import RichText
-from DailyReport.utils import configuration
+# from DailyReport.utils import configuration
+# config = configuration("./config.yml").notion
 
-config = configuration("./config.yml").notion
 logger = logging.getLogger(__name__)
 
 @dataclass

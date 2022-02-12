@@ -2,7 +2,6 @@
 import yaml
 import datetime
 
-
 class DotDict(dict):
     """dot.notation access to dictionary attributes"""
     def __getattr__(*args):
@@ -17,8 +16,7 @@ def configuration(path: str = "/config.yml") -> dict:
         config = yaml.load(_config_yml, Loader=yaml.FullLoader)
         return DotDict(config)
 
-
-def get_delayed_time_to_start():
+def get_report_time_50_min():
     now = datetime.datetime.now()
     start = now.replace(minute=50, second=00)
 

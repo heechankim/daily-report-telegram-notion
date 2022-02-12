@@ -3,7 +3,7 @@ import datetime
 
 from DailyReport.databases.database import Database
 from DailyReport.databases.notion_apis import NotionAPIs
-from DailyReport.utils.Either import Left, Right
+from DailyReport.utils import Left, Right
 from DailyReport.entities import User
 
 logger = logging.getLogger("[NotionDatabase]")
