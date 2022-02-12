@@ -91,8 +91,3 @@ class NotionDatabase:
         result.context['message'] = "Done."
 
         return result
-
-    def report_insert(self, context):
-        ...
-
-# message_len = len(str(context['root_page_id']).strip()) # 32

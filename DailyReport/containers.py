@@ -37,7 +37,6 @@ class Container(containers.DeclarativeContainer):
 
     routines = providers.Singleton(
         Routines,
-        chat_id=config.telegram.my.id,
     )
 
     bot = providers.Singleton(
