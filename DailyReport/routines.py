@@ -1,9 +1,10 @@
 import logging
 import asyncio
 from aiogram import Bot, exceptions
-from contextlib import asynccontextmanager
+import datetime
 
-from DailyReport.databases import Database
+from DailyReport.job_queue import JobQueue, Job
+from DailyReport.utils import get_report_time_50_min
 
 logger = logging.getLogger("[Routines]")
 
@@ -28,9 +29,27 @@ class Loop:
 class Routines:
     def __init__(
             self,
-            bot: Bot,
+            token,
+            jobqueue: JobQueue,
     ):
-        self.bot = bot
+        self.bot = Bot(token=token)
+        self.sch = jobqueue
+
+        self.sch.run_repeating(
+            self.reporting_alarm,
+            interval=datetime.timedelta(hours=1),
+            first=get_report_time_50_min(),
+            # first=datetime.timedelta(seconds=5),
+        )
+
+    def run(self):
+        self.start()
+
+    def start(self):
+        self.sch.start()
+
+    def shutdown(self):
+        self.sch.stop()
 
     def reporting_alarm(self) -> None:
 
@@ -40,7 +59,7 @@ class Routines:
             text = "Report:"
 
             try:
-                await asyncio.sleep(1)
+                await self.bot.send_message(user_id, text)
 
             except exceptions.RetryAfter as e:
                 logger.error(f"Target [ID:{user_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds.")
