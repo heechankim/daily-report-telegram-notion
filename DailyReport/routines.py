@@ -69,7 +69,7 @@ class Routines:
             except exceptions.TelegramAPIError as e:
                 logger.exception(f"Target [ID:{user_id}]: failed")
 
-            else:
-                logger.exception("reporting alarm method done.")
+            finally:
+                logger.info("reporting alarm method done.")
 
         asyncio.run(perform())
